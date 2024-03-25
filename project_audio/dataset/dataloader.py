@@ -27,6 +27,11 @@ class MusicDataset(Dataset):
         self.model = EncodecModel.encodec_model_48khz().to(device=self.device)
         self.audio_files_dir = f'{dataset_dir}/audios'
         self.metadatas_dir = f'{dataset_dir}/metadata'
+        
+        # Initialize durations and cumsum to None
+        self.durations = None
+        self.cumsum = None
+
         if durations_path is not None:
             self.durations = torch.load(durations_path)
         if cumsum_path is not None:
