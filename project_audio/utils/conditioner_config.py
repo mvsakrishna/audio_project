@@ -9,7 +9,7 @@ example metadata: {"prompt": "a beautiful song", "seconds_start": 22, "seconds_t
 
 @dataclass
 class T5Config:
-    id = 'caption'
+    id = 'prompt'
     t5_model_name = 'google/flan-t5-large'
     max_length = 128
     project_out = True
