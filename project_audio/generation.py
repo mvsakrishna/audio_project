@@ -119,7 +119,7 @@ class Jen1():
             if flag:
                 init_emb = None
                 
-            batch_metadata = [{'caption': prompt} for _ in range(batch_size)]
+            batch_metadata = [{'prompt': prompt} for _ in range(batch_size)]
             conditioning = self.conditioner(batch_metadata, self.device)
             conditioning['masked_input'] = masked_emb
             conditioning['mask'] = mask
