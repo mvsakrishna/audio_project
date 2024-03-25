@@ -58,20 +58,20 @@ class MusicDataset(Dataset):
         self.cumsum = torch.cumsum(duration_tensor, dim=0) # in (s)
 
     def init_dataset(self):
-      audio_files = os.listdir(self.audio_files_dir)
-      audio_files = [f'{self.audio_files_dir}/{file}' for file in audio_files if file.endswith('.wav') or file.endswith('.mp3')]
-      if self.durations is None and self.cumsum is None:
-          durations = [self.get_duration_sec(file) for file in audio_files]
-          try:
-              self.filter(audio_files=audio_files, durations=durations)
-          except AttributeError as e:
-              print("AttributeError:", e)
-              print("Ensure that the 'durations' attribute is properly assigned.")
-          except Exception as e:
-              print("An error occurred during filtering:", e)
-      else:
-          print("durations:", self.durations)
-          print("cumsum:", self.cumsum)
+        audio_files = os.listdir(self.audio_files_dir)
+        audio_files = [f'{self.audio_files_dir}/{file}' for file in audio_files if file.endswith('.wav') or file.endswith('.mp3')]
+        if self.durations is None and self.cumsum is None:
+            durations = [self.get_duration_sec(file) for file in audio_files]
+            try:
+                self.filter(audio_files=audio_files, durations=durations)
+            except AttributeError as e:
+                print("AttributeError:", e)
+                print("Ensure that the 'durations' attribute is properly assigned.")
+            except Exception as e:
+                print("An error occurred during filtering:", e)
+        else:
+            print("durations:", self.durations)
+            print("cumsum:", self.cumsum)
             
     def get_index_offset(self, item):
         half_interval = self.sample_duration // 2
