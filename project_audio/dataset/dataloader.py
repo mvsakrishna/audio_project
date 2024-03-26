@@ -147,9 +147,8 @@ def collate(batch):
     emb = torch.cat(emb, dim=0)
     metadata = [d for d in data]
 
-    # Print the length of batch before unpacking
+    # Print the length of batch
     print(len(batch))
-    emb, metadata = zip(*batch)
 
     return (emb, metadata)
 
