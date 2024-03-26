@@ -1,8 +1,4 @@
 import os
-import time
-import math
-import random
-import json
 import torch
 import torchaudio
 from torch.utils.data import Dataset, DataLoader, random_split
@@ -16,7 +12,7 @@ class MusicDataset(Dataset):
                  audio_file_txt_path):
         super().__init__()
         self.dataset_dir = dataset_dir
-        self.metadata_dir = metadata_dir  # Update metadata_dir assignment
+        self.metadata_dir = metadata_dir  
         self.sr = sr
         self.channels = channels
         self.min_duration = min_duration 
@@ -26,7 +22,6 @@ class MusicDataset(Dataset):
         self.device = device
         self.model = EncodecModel.encodec_model_48khz().to(device=self.device)
         self.audio_files_dir = f'{dataset_dir}/audios'
-        self.metadata_dir = f'{metadata_dir}/metadata'  # Update metadata_dir assignment
         self.durations = None
         self.cumsum = None
         if durations_path is not None:
@@ -41,7 +36,7 @@ class MusicDataset(Dataset):
 
     def filter(self, audio_files, durations):
         keep = []
-        self.audio_files.clear()  # Update to clear existing list
+        audio_files_filtered = []
         for i in range(len(audio_files)):
             filepath = audio_files[i]
             if durations[i] < self.min_duration:
@@ -49,9 +44,9 @@ class MusicDataset(Dataset):
             if durations[i] >= self.max_duration:
                 continue
             keep.append(i)
-            self.audio_files.append(filepath)
-        self.durations = [durations[i] for i in keep]
-        duration_tensor = torch.tensor(self.durations)
+            audio_files_filtered.append(filepath)
+        durations_filtered = [durations[i] for i in keep]
+        duration_tensor = torch.tensor(durations_filtered)
         self.cumsum = torch.cumsum(duration_tensor, dim=0)
 
     def init_dataset(self):
@@ -71,7 +66,7 @@ class MusicDataset(Dataset):
             print("cumsum:", self.cumsum)
 
     def get_song_chunk(self, index, offset):
-        audio_file_path = os.path.join(self.audio_files_dir, self.audio_files[index])  # Construct full file path
+        audio_file_path = os.path.join(self.audio_files_dir, self.audio_files[index])  
         wav, sr = torchaudio.load(audio_file_path)
         start_sample = int(offset * sr)
         end_sample = start_sample + int(self.sample_duration * sr)
@@ -102,7 +97,7 @@ class MusicDataset(Dataset):
         return chunk, metadata, emb
 
 def collate(batch):
-    device = batch[0][0].device  # Determine device from the first tensor in the batch
+    device = batch[0][0].device
     audio, data, emb = zip(*batch)
 
     for i, tensor in enumerate(audio):
@@ -117,7 +112,9 @@ def collate(batch):
 
     return (emb, metadata)
 
-def get_dataloader(dataset_folder, batch_size: int = 50, shuffle: bool = True):
+def get_dataloader(dataset_folder, metadata_dir, sr, channels, min_duration, max_duration,
+                   sample_duration, aug_shift, device, durations_path, cumsum_path, audio_file_txt_path,
+                   batch_size: int = 50, shuffle: bool = True):
     dataset = MusicDataset(dataset_folder, metadata_dir, sr, channels, min_duration, max_duration,
                            sample_duration, aug_shift, device, durations_path, cumsum_path, audio_file_txt_path)
 
