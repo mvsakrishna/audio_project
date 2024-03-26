@@ -134,22 +134,17 @@ def collate(batch):
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     audio, data, emb = zip(*batch)
     
-    # Print sizes of tensors before concatenation
-    print("Sizes of tensors before concatenation:")
+    # Check sizes of tensors before concatenation
     for i, tensor in enumerate(audio):
-        print(f"Tensor {i + 1}: {tensor.size()}")
+        print(f"Tensor {i + 1} size: {tensor.size()}")
+    
+    for i, d in enumerate(data):
+        print(f"Metadata {i + 1} size: {len(d)}")
 
     # Concatenate tensors
     audio = torch.cat(audio, dim=0)
-    
-    # Print size of concatenated tensor
-    print(f"Size of concatenated tensor: {audio.size()}")
-    
     emb = torch.cat(emb, dim=0)
     metadata = [d for d in data]
-
-    # Print the length of batch
-    print(len(batch))
 
     return (emb, metadata)
 
