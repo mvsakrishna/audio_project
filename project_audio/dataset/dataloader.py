@@ -131,36 +131,23 @@ class MusicDataset(Dataset):
 
 def collate(batch):
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    audio, data, emb = zip(*batch)
+    emb, metadata = zip(*batch)
     
-    # Determine the maximum length of audio samples in the batch
-    max_length = max([tensor.size(2) for tensor in audio])
-    
-    # Pad or truncate audio samples to ensure uniform length
-    padded_audio = []
-    for tensor in audio:
-        if tensor.size(2) < max_length:
-            # Pad tensor with zeros
-            padding = torch.zeros(tensor.size(0), tensor.size(1), max_length - tensor.size(2), device=device)
-            padded_tensor = torch.cat([tensor.to(device), padding], dim=2)
-            padded_audio.append(padded_tensor)
-        elif tensor.size(2) > max_length:
-            # Truncate tensor
-            truncated_tensor = tensor[:, :, :max_length].to(device)
-            padded_audio.append(truncated_tensor)
-        else:
-            padded_audio.append(tensor.to(device))
-    
-    # Concatenate tensors
-    audio = torch.cat(padded_audio, dim=0)
-    
-    # Print size of concatenated tensor
-    print(f"Size of concatenated tensor: {audio.size()}")
-    
+    # Concatenate embeddings
     emb = torch.cat(emb, dim=0)
-    metadata = [d for d in data]
-
-    return (emb, metadata)
+    
+    # Check and pad metadata if necessary
+    max_length = max(len(data) for data in metadata)
+    padded_metadata = []
+    for data in metadata:
+        if len(data) < max_length:
+            padding = [0] * (max_length - len(data))
+            padded_data = data + padding
+            padded_metadata.append(padded_data)
+        else:
+            padded_metadata.append(data)
+    
+    return emb, padded_metadata
 
 def get_dataloader(dataset_folder, batch_size: int = 50, shuffle: bool = True):
     dataset = MusicDataset(dataset_folder)
