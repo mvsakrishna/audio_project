@@ -118,40 +118,26 @@ def collate(batch):
     return (emb, metadata)
 
 def get_dataloader(dataset_folder, batch_size: int = 50, shuffle: bool = True):
-    dataset = MusicDataset(dataset_folder)
+    dataset = MusicDataset(dataset_folder, metadata_dir, sr, channels, min_duration, max_duration,
+                           sample_duration, aug_shift, device, durations_path, cumsum_path, audio_file_txt_path)
 
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle, collate_fn=collate)
     return dataloader
 
 
-def get_dataloaders(dataset_dir, sr, channels, min_duration, max_duration, sample_duration, 
+def get_dataloaders(dataset_dir, metadata_dir, sr, channels, min_duration, max_duration, sample_duration, 
                     aug_shift, batch_size: int = 50, shuffle: bool = True, split_ratio=0.8, device='cpu',
-                    durations_path = None, cumsum_path = None, audio_file_txt_path=None):
+                    durations_path=None, cumsum_path=None, audio_file_txt_path=None):
     if not isinstance(dataset_dir, tuple):
-        dataset = MusicDataset(dataset_dir=dataset_dir, sr=sr, channels=channels,
-                               min_duration=min_duration, max_duration=max_duration, sample_duration=sample_duration,
-                               aug_shift=aug_shift, device=device, 
-                               durations_path=durations_path,
-                               cumsum_path=cumsum_path,
-                               audio_file_txt_path=audio_file_txt_path)
-        # Split the dataset into train and validation
         train_size = int(split_ratio * len(dataset))
         val_size = len(dataset) - train_size
         train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
     else:
         train_dir, valid_dir = dataset_dir
-        train_dataset = MusicDataset(dataset_dir=train_dir, sr=sr, channels=channels,
-                                     min_duration=min_duration, max_duration=max_duration, sample_duration=sample_duration,
-                                     aug_shift=aug_shift, device=device,
-                                     durations_path=durations_path,
-                                     cumsum_path=cumsum_path,
-                                     audio_file_txt_path=audio_file_txt_path)
-        val_dataset = MusicDataset(dataset_dir=valid_dir, sr=sr, channels=channels,
-                                     min_duration=min_duration, max_duration=max_duration, sample_duration=sample_duration,
-                                     aug_shift=aug_shift, device=device,
-                                     durations_path=durations_path,
-                                     cumsum_path=cumsum_path, 
-                                     audio_file_txt_path=audio_file_txt_path)
+        train_dataset = MusicDataset(train_dir, metadata_dir, sr, channels, min_duration, max_duration, sample_duration,
+                                     aug_shift, device, durations_path, cumsum_path, audio_file_txt_path)
+        val_dataset = MusicDataset(valid_dir, metadata_dir, sr, channels, min_duration, max_duration, sample_duration,
+                                   aug_shift, device, durations_path, cumsum_path, audio_file_txt_path)
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle, collate_fn=collate, drop_last=True)
     val_dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, collate_fn=collate, drop_last=True)
 
