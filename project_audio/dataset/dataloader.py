@@ -14,7 +14,7 @@ from encodec.utils import convert_audio
 class MusicDataset(Dataset):
     def __init__(self, dataset_dir, sr, channels, min_duration, max_duration,
                  sample_duration, aug_shift, device, durations_path, cumsum_path,
-                 audio_file_txt_path):
+                 audio_file_txt_path, metadata_dir):
         super().__init__()
         self.dataset_dir = dataset_dir
         self.sr = sr
@@ -27,6 +27,7 @@ class MusicDataset(Dataset):
         self.model = EncodecModel.encodec_model_48khz().to(device=self.device)
         self.audio_files_dir = f'{dataset_dir}/audios'
         self.metadatas_dir = f'{dataset_dir}/metadata'
+        self.metadata_dir = metadata_dir  # Path to the directory containing metadata files
         
         # Initialize durations and cumsum to None
         self.durations = None
