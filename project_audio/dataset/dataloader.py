@@ -130,16 +130,20 @@ class MusicDataset(Dataset):
         return chunk, metadata, emb
 
 def collate(batch):
-    device = 'cuda' if torch.cuda.is_available else 'cpu'
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
     audio, data, emb = zip(*batch)
     
-    # Find the maximum sequence length
-    max_length = max(audio_tensor.size(1) for audio_tensor in audio)
+    # Print sizes of tensors before concatenation
+    print("Sizes of tensors before concatenation:")
+    for i, tensor in enumerate(audio):
+        print(f"Tensor {i + 1}: {tensor.size()}")
+
+    # Concatenate tensors
+    audio = torch.cat(audio, dim=0)
     
-    # Pad sequences to the maximum length
-    padded_audio = [torch.nn.functional.pad(audio_tensor, (0, max_length - audio_tensor.size(1))) for audio_tensor in audio]
+    # Print size of concatenated tensor
+    print(f"Size of concatenated tensor: {audio.size()}")
     
-    audio = torch.cat(padded_audio, dim=0)
     emb = torch.cat(emb, dim=0)
     metadata = [d for d in data]
 
