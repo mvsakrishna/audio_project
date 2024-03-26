@@ -131,23 +131,27 @@ class MusicDataset(Dataset):
 
 def collate(batch):
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    emb, metadata = zip(*batch)
+    audio, data, emb = zip(*batch)
     
-    # Concatenate embeddings
+    # Print sizes of tensors before concatenation
+    print("Sizes of tensors before concatenation:")
+    for i, tensor in enumerate(audio):
+        print(f"Tensor {i + 1}: {tensor.size()}")
+
+    # Concatenate tensors
+    audio = torch.cat(audio, dim=0)
+    
+    # Print size of concatenated tensor
+    print(f"Size of concatenated tensor: {audio.size()}")
+    
     emb = torch.cat(emb, dim=0)
-    
-    # Check and pad metadata if necessary
-    max_length = max(len(data) for data in metadata)
-    padded_metadata = []
-    for data in metadata:
-        if len(data) < max_length:
-            padding = [0] * (max_length - len(data))
-            padded_data = data + padding
-            padded_metadata.append(padded_data)
-        else:
-            padded_metadata.append(data)
-    
-    return emb, padded_metadata
+    metadata = [d for d in data]
+
+    # Print the length of batch before unpacking
+    print(len(batch))
+    emb, metadata = zip(*batch)
+
+    return (emb, metadata)
 
 def get_dataloader(dataset_folder, batch_size: int = 50, shuffle: bool = True):
     dataset = MusicDataset(dataset_folder)
