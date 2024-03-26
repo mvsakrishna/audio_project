@@ -121,7 +121,6 @@ def get_dataloader(dataset_folder, metadata_dir, sr, channels, min_duration, max
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle, collate_fn=collate)
     return dataloader
 
-
 def get_dataloaders(dataset_dir, metadata_dir, sr, channels, min_duration, max_duration, sample_duration, 
                     aug_shift, batch_size: int = 50, shuffle: bool = True, split_ratio=0.8, device='cpu',
                     durations_path=None, cumsum_path=None, audio_file_txt_path=None):
@@ -137,5 +136,6 @@ def get_dataloaders(dataset_dir, metadata_dir, sr, channels, min_duration, max_d
                                    aug_shift, device, durations_path, cumsum_path, audio_file_txt_path)
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle, collate_fn=collate, drop_last=True)
     val_dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, collate_fn=collate, drop_last=True)
+                        
 
     return train_dataloader, val_dataloader
