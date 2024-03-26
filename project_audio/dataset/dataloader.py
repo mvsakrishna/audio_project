@@ -129,7 +129,6 @@ class MusicDataset(Dataset):
         
         return chunk, metadata, emb
 
-
 def collate(batch):
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     audio, data, emb = zip(*batch)
@@ -142,15 +141,15 @@ def collate(batch):
     for tensor in audio:
         if tensor.size(2) < max_length:
             # Pad tensor with zeros
-            padding = torch.zeros(tensor.size(0), tensor.size(1), max_length - tensor.size(2))
-            padded_tensor = torch.cat([tensor, padding], dim=2)
+            padding = torch.zeros(tensor.size(0), tensor.size(1), max_length - tensor.size(2), device=device)
+            padded_tensor = torch.cat([tensor.to(device), padding], dim=2)
             padded_audio.append(padded_tensor)
         elif tensor.size(2) > max_length:
             # Truncate tensor
-            truncated_tensor = tensor[:, :, :max_length]
+            truncated_tensor = tensor[:, :, :max_length].to(device)
             padded_audio.append(truncated_tensor)
         else:
-            padded_audio.append(tensor)
+            padded_audio.append(tensor.to(device))
     
     # Concatenate tensors
     audio = torch.cat(padded_audio, dim=0)
