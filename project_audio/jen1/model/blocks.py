@@ -2,7 +2,7 @@ from typing import Optional, Union, Tuple, List
 
 import torch
 import torch.nn as nn
-from dac.nn.layers import Snake1d
+# from dac.nn.layers import Snake1d
 from einops import rearrange, repeat
 from einops.layers.torch import Rearrange
 from einops_exts import rearrange_many
